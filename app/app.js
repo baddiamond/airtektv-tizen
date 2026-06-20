@@ -151,9 +151,9 @@
     var catName = (S.categories[S.catIndex] || {}).name || '';
     if (!ch) { $('spotlight').innerHTML = ''; return; }
     $('spotlight').innerHTML =
-      '<div style="position:relative;width:392px;flex:none;border-radius:22px;overflow:hidden;background:' + chBg(ch) + ';box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(140,200,255,.12)">' +
-        '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">' + chArt(ch, 'spot') + '</div>' +
-        '<div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(4,7,13,.5),transparent 55%)"></div>' +
+      '<div id="sp-art" style="position:relative;width:392px;flex:none;border-radius:22px;overflow:hidden;background:' + chBg(ch) + ';box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(140,200,255,.12)">' +
+        '<div class="sp-logo" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">' + chArt(ch, 'spot') + '</div>' +
+        '<div class="sp-scrim" style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(4,7,13,.5),transparent 55%)"></div>' +
         '<div class="nun" style="position:absolute;top:16px;left:16px;min-width:46px;height:36px;padding:0 11px;display:flex;align-items:center;justify-content:center;border-radius:11px;font-weight:900;font-size:20px;color:#062231;background:linear-gradient(180deg,#7fe6ff,#31cfff);box-shadow:0 5px 14px rgba(49,207,255,.4)">' + ch._num + '</div>' +
         '<div style="position:absolute;bottom:16px;left:16px;display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;background:rgba(4,7,13,.65);border:1px solid rgba(255,49,73,.5)"><span style="width:7px;height:7px;border-radius:50%;background:#ff3149;box-shadow:0 0 9px #ff3149;animation:atk-blink 1.1s ease-in-out infinite"></span><span class="nun" style="font-weight:900;font-size:12px;letter-spacing:1.5px;color:#ff8a96">EN VIVO</span></div>' +
       '</div>' +
@@ -202,7 +202,7 @@
     $('cat-title').textContent = cat.name;
     $('cat-count').textContent = cat.items.length;
   }
-  function renderHome() { renderCats(); renderHeader(); renderSpotlight(); renderGrid(); }
+  function renderHome() { renderCats(); renderHeader(); renderSpotlight(); renderGrid(); refreshPreview(); }
 
   // ---- Reloj ----
   var DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -255,6 +255,7 @@
 
   // ---- Player ----
   function openPlayer(i) {
+    stopPreview();
     S.playerIndex = i;
     showView('player');
     if (IS_TIZEN) avSetup();
@@ -362,11 +363,14 @@
   }
 
   // ---- AVPlay (Samsung Tizen) ----
+  function setTvTransparent(on) {
+    document.documentElement.classList.toggle('av-transparent', on);
+    document.body.classList.toggle('av-transparent', on);
+  }
   function avSetup() {
     // El video de AVPlay se dibuja en una capa de hardware DETRÁS del navegador:
     // hay que volver transparentes html/body y el fondo del player para que se vea.
-    document.documentElement.style.background = 'transparent';
-    document.body.style.background = 'transparent';
+    setTvTransparent(true);
     $('player').style.background = 'transparent';
     $('pl-backdrop').style.display = 'none';
     $('video').style.display = 'none';
@@ -378,8 +382,7 @@
     $('video').style.display = '';
     $('pl-backdrop').style.display = '';
     $('player').style.background = '#000';
-    document.documentElement.style.background = '';
-    document.body.style.background = '';
+    setTvTransparent(false);
   }
   function avPlay(url, ch) {
     var av = window.webapis.avplay;
@@ -405,6 +408,99 @@
     if (!IS_TIZEN) return;
     try { window.webapis.avplay.stop(); } catch (e) {}
     try { window.webapis.avplay.close(); } catch (e) {}
+  }
+
+  // ---- Vista previa en vivo en el spotlight ----
+  var PV = { timer: null, active: false, hls: null };
+  function spotlightChannel() {
+    var list = curList();
+    var idx = S.region === 'grid' ? clamp(S.gridIndex, 0, list.length - 1) : 0;
+    return list[idx] || S.channels[0];
+  }
+  function refreshPreview() {
+    stopPreview();
+    if (!CFG.spotlightPreview || S.view !== 'home') return;
+    clearTimeout(PV.timer);
+    PV.timer = setTimeout(startPreview, CFG.previewDelayMs || 1200);
+  }
+  function startPreview() {
+    if (S.view !== 'home' || !CFG.spotlightPreview) return;
+    var ch = spotlightChannel(); if (!ch) return;
+    var art = $('sp-art'); if (!art) return;
+    var url = ch.url || ch.backup_url; if (!url) return;
+    PV.active = true;
+    var r = art.getBoundingClientRect();
+    if (IS_TIZEN) avPreview(url, ch, r, art);
+    else pcPreview(url, art);
+  }
+  function stopPreview() {
+    clearTimeout(PV.timer);
+    if (!PV.active) return;
+    PV.active = false;
+    if (IS_TIZEN) { avStop(); closeHole(); }
+    else {
+      var v = $('sp-video');
+      if (PV.hls) { try { PV.hls.destroy(); } catch (e) {} PV.hls = null; }
+      if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} v.style.display = 'none'; }
+    }
+    if (S.view === 'home') renderSpotlight();
+  }
+  function avPreview(url, ch, r, art) {
+    var av = window.webapis.avplay;
+    try { av.stop(); } catch (e) {}
+    try { av.close(); } catch (e) {}
+    try {
+      av.open(url);
+      try { av.setDisplayRect(Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)); } catch (e) {}
+      try { av.setDisplayMethod('PLAYER_DISPLAY_MODE_FULL_SCREEN'); } catch (e) {}
+      av.setListener({
+        onbufferingcomplete: function () { if (PV.active) openHole(r, art); },
+        onerror: function () { stopPreview(); }
+      });
+      av.prepareAsync(function () { try { av.play(); } catch (e) {} if (PV.active) openHole(r, art); },
+        function () { stopPreview(); });
+    } catch (e) { stopPreview(); }
+  }
+  function pcPreview(url, art) {
+    var v = $('sp-video'); if (!v) return;
+    var r = art.getBoundingClientRect();
+    v.style.left = r.left + 'px'; v.style.top = r.top + 'px';
+    v.style.width = r.width + 'px'; v.style.height = r.height + 'px';
+    v.style.display = 'block';
+    if (window.Hls && window.Hls.isSupported() && /\.m3u8(\?|$)/i.test(url)) {
+      var hls = new window.Hls({ liveDurationInfinity: true });
+      PV.hls = hls; hls.loadSource(url); hls.attachMedia(v);
+      hls.on(window.Hls.Events.MANIFEST_PARSED, function () { v.play().catch(function () {}); });
+    } else { v.src = url; v.play().catch(function () {}); }
+  }
+  function openHole(r, art) {
+    if (!IS_TIZEN || !PV.active) return;
+    setTvTransparent(true);
+    var hb = $('home-bg'); if (hb) hb.classList.add('holed');
+    setStrips(r);
+    if (art) {
+      art.style.background = 'transparent';
+      var lg = art.querySelector('.sp-logo'); if (lg) lg.style.visibility = 'hidden';
+      var sc = art.querySelector('.sp-scrim'); if (sc) sc.style.display = 'none';
+    }
+  }
+  function closeHole() {
+    setTvTransparent(false);
+    var hb = $('home-bg'); if (hb) hb.classList.remove('holed');
+    ['hole-t', 'hole-b', 'hole-l', 'hole-r'].forEach(function (id) { var e = $(id); if (e) e.style.display = 'none'; });
+  }
+  function setStrips(r) {
+    var W = 1920, H = 1080;
+    place('hole-t', 0, 0, W, r.top);
+    place('hole-b', 0, r.bottom, W, H - r.bottom);
+    place('hole-l', 0, r.top, r.left, r.height);
+    place('hole-r', r.right, r.top, W - r.right, r.height);
+  }
+  function place(id, x, y, w, h) {
+    var e = $(id); if (!e) return;
+    e.style.left = x + 'px'; e.style.top = y + 'px';
+    e.style.width = Math.max(0, w) + 'px'; e.style.height = Math.max(0, h) + 'px';
+    e.style.display = 'block';
   }
 
   // ---- Teclado ----

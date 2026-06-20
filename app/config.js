@@ -13,6 +13,11 @@ window.AIRTEK_CONFIG = {
 
   // Tiempo máximo de espera para el API (ms)
   fetchTimeoutMs: 12000,
+
+  // Vista previa en vivo en el spotlight (recuadro grande de la guía).
+  // Si en la TV se siente lento/raro, poner en false para volver al logo estático.
+  spotlightPreview: true,
+  previewDelayMs: 1200,   // espera tras quedarse quieto en un canal antes de previsualizar
 };
 
 // --- Perfil WEB con DRM (POSPUESTO — ver README "Ruta futura"). ---

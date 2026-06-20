@@ -45,5 +45,13 @@ img { -webkit-user-drag: none; }
 }
 .pl-spinner.hidden { display: none; }
 
+/* ---------- Vista previa en vivo (spotlight) ---------- */
+/* En Tizen, AVPlay dibuja detrás del navegador; transparentamos html/body
+   y abrimos un "hueco" con franjas opacas alrededor del recuadro. */
+html.av-transparent, body.av-transparent { background: transparent !important; }
+#home-bg.holed { background: transparent !important; }
+.hole-strip { position: absolute; background: #06090f; z-index: 1; display: none; pointer-events: none; }
+#sp-video { position: absolute; z-index: 2; display: none; object-fit: cover; border-radius: 22px; background: #000; }
+
 /* scrollbars ocultos */
 ::-webkit-scrollbar { width: 0; height: 0; }
