@@ -110,11 +110,11 @@
   // ---- Arte del canal (logo real) ----
   function chBg(ch) { return ch._cat === 'Airtek Goool' ? GRAD : ARTBG; }
   function chArt(ch, mode) {
-    var mh = mode === 'tile' ? '74%' : '64%';
+    // El logo llena la tarjeta (contain = sin deformar). Padding pequeño para que respire.
+    var pad = mode === 'tile' ? '7px' : '20px';
     if (ch.thumbnail) {
-      return '<img src="' + esc(ch.thumbnail) + '" style="max-width:82%;max-height:' + mh +
-        ';object-fit:contain;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45))" ' +
-        'onerror="this.style.display=\'none\'" />';
+      return '<img src="' + esc(ch.thumbnail) + '" style="width:100%;height:100%;object-fit:contain;padding:' + pad +
+        ';filter:drop-shadow(0 2px 10px rgba(0,0,0,.45))" onerror="this.style.display=\'none\'" />';
     }
     var size = mode === 'tile' ? sz(ch.title) : '46px';
     return '<span class="saira" style="font-size:' + size + ';color:#fff;opacity:.92">' + esc(ch.title || '') + '</span>';
@@ -202,7 +202,11 @@
     $('cat-title').textContent = cat.name;
     $('cat-count').textContent = cat.items.length;
   }
-  function renderHome() { renderCats(); renderHeader(); renderSpotlight(); renderGrid(); refreshPreview(); }
+  function renderHome() {
+    stopPreview();            // cierra el hueco/strips ANTES de re-dibujar (evita la franja negra al scrollear)
+    renderCats(); renderHeader(); renderSpotlight(); renderGrid();
+    schedulePreview();        // agenda el nuevo preview
+  }
 
   // ---- Reloj ----
   var DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -417,8 +421,7 @@
     var idx = S.region === 'grid' ? clamp(S.gridIndex, 0, list.length - 1) : 0;
     return list[idx] || S.channels[0];
   }
-  function refreshPreview() {
-    stopPreview();
+  function schedulePreview() {
     if (!CFG.spotlightPreview || S.view !== 'home') return;
     clearTimeout(PV.timer);
     PV.timer = setTimeout(startPreview, CFG.previewDelayMs || 1200);
@@ -490,11 +493,11 @@
     ['hole-t', 'hole-b', 'hole-l', 'hole-r'].forEach(function (id) { var e = $(id); if (e) e.style.display = 'none'; });
   }
   function setStrips(r) {
-    var W = 1920, H = 1080;
-    place('hole-t', 0, 0, W, r.top);
-    place('hole-b', 0, r.bottom, W, H - r.bottom);
-    place('hole-l', 0, r.top, r.left, r.height);
-    place('hole-r', r.right, r.top, W - r.right, r.height);
+    var W = 1920, H = 1080, o = 1; // 1px de solape para que no queden costuras
+    place('hole-t', 0, 0, W, r.top + o);
+    place('hole-b', 0, r.bottom - o, W, H - r.bottom + o);
+    place('hole-l', 0, r.top - o, r.left + o, r.height + 2 * o);
+    place('hole-r', r.right - o, r.top - o, W - r.right + o, r.height + 2 * o);
   }
   function place(id, x, y, w, h) {
     var e = $(id); if (!e) return;
