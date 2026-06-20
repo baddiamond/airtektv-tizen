@@ -209,8 +209,11 @@
   var MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
   function tickClock() {
     var d = new Date();
-    var hh = ('0' + d.getHours()).slice(-2), mm = ('0' + d.getMinutes()).slice(-2);
-    if ($('clock')) $('clock').textContent = hh + ':' + mm;
+    var h = d.getHours(), mm = ('0' + d.getMinutes()).slice(-2);
+    var ap = h < 12 ? 'AM' : 'PM';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    if ($('clock')) $('clock').innerHTML = h12 + ':' + mm +
+      '<span style="font-size:20px;font-weight:800;color:#7fa6c4;margin-left:8px;letter-spacing:1px">' + ap + '</span>';
     if ($('clock-date')) $('clock-date').textContent = DIAS[d.getDay()] + ' ' + d.getDate() + ' ' + MES[d.getMonth()];
   }
 
