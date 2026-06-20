@@ -1,0 +1,32 @@
+{
+  "name": "@airtek/airtektv-tizen",
+  "version": "0.1.0",
+  "description": "Airtek TV para Samsung Tizen (TizenBrew). Port web del cliente IPTV de Airtek.",
+  "author": "Airtek",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": { "type": "git", "url": "https://github.com/baddiamond/airtektv-tizen.git" },
+  "homepage": "https://github.com/baddiamond/airtektv-tizen#readme",
+  "bugs": { "url": "https://github.com/baddiamond/airtektv-tizen/issues" },
+  "packageType": "app",
+  "appName": "Airtek TV",
+  "appPath": "app/index.html",
+  "evaluateScriptOnDocumentStart": false,
+  "keys": [
+    "MediaPlayPause",
+    "MediaPlay",
+    "MediaPause",
+    "MediaStop",
+    "MediaFastForward",
+    "MediaRewind",
+    "ChannelUp",
+    "ChannelDown",
+    "ColorF0Red",
+    "ColorF1Green",
+    "ColorF2Yellow",
+    "ColorF3Blue"
+  ],
+  "scripts": {
+    "dev": "node tools/dev-server.js"
+  }
+}
