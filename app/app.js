@@ -505,6 +505,13 @@
     e.style.display = 'block';
   }
 
+  function changeCat(d) {
+    var i = clamp(S.catIndex + d, 0, S.categories.length - 1);
+    if (i === S.catIndex) return;
+    S.catIndex = i; S.gridIndex = 0;
+    renderHome(); // mantiene la región actual; la grilla y el spotlight reflejan la nueva categoría
+  }
+
   // ---- Teclado ----
   function onKey(e) {
     var c = e.keyCode, v = S.view;
@@ -522,6 +529,9 @@
     }
     if (v !== 'home') return;
     var n = curList().length;
+    // CH+ / CH- cambian de categoría en la guía (en cualquier región)
+    if (isKey(KEY.CH_UP, c)) { changeCat(1); e.preventDefault(); return; }
+    if (isKey(KEY.CH_DOWN, c)) { changeCat(-1); e.preventDefault(); return; }
     if (S.region === 'sidebar') {
       if (isKey(KEY.DOWN, c)) { S.catIndex = Math.min(S.categories.length - 1, S.catIndex + 1); S.gridIndex = 0; renderHome(); }
       else if (isKey(KEY.UP, c)) { S.catIndex = Math.max(0, S.catIndex - 1); S.gridIndex = 0; renderHome(); }

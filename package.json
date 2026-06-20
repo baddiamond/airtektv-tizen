@@ -1,6 +1,6 @@
 {
   "name": "@airtek/airtektv-tizen",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Airtek TV para Samsung Tizen (TizenBrew). Port web del cliente IPTV de Airtek.",
   "author": "Airtek",
   "license": "UNLICENSED",
