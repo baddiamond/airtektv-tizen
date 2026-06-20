@@ -110,14 +110,13 @@
   // ---- Arte del canal (logo real) ----
   function chBg(ch) { return ch._cat === 'Airtek Goool' ? GRAD : ARTBG; }
   function chArt(ch, mode) {
-    // El logo llena la tarjeta (contain = sin deformar). Padding pequeño para que respire.
-    var pad = mode === 'tile' ? '7px' : '20px';
+    // El thumbnail (1.54:1) llena el recuadro de borde a borde. El recuadro ya tiene esa
+    // forma, así que cover = sin marcos ni recortes.
     if (ch.thumbnail) {
-      return '<img src="' + esc(ch.thumbnail) + '" style="width:100%;height:100%;object-fit:contain;padding:' + pad +
-        ';filter:drop-shadow(0 2px 10px rgba(0,0,0,.45))" onerror="this.style.display=\'none\'" />';
+      return '<img src="' + esc(ch.thumbnail) + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'" />';
     }
     var size = mode === 'tile' ? sz(ch.title) : '46px';
-    return '<span class="saira" style="font-size:' + size + ';color:#fff;opacity:.92">' + esc(ch.title || '') + '</span>';
+    return '<span class="saira" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:' + size + ';color:#fff;opacity:.92">' + esc(ch.title || '') + '</span>';
   }
 
   // ---- Render: SIDEBAR ----
@@ -182,7 +181,7 @@
       html += '<div data-foc="' + (f ? '1' : '0') + '" style="' + cardStyle + '">' +
         (f ? '<div style="position:absolute;inset:0;border-radius:16px;overflow:hidden;pointer-events:none"><div style="position:absolute;top:0;bottom:0;width:38%;background:linear-gradient(100deg,transparent,rgba(150,225,255,.16),transparent);animation:atk-sheen 1.6s ease-in-out infinite"></div></div>' : '') +
         '<div class="nun" style="position:absolute;top:10px;left:10px;z-index:2;min-width:34px;height:27px;padding:0 7px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:900;font-size:15px;color:#062231;background:linear-gradient(180deg,#7fe6ff,#31cfff);box-shadow:0 3px 10px rgba(49,207,255,.4)">' + ch._num + '</div>' +
-        '<div style="height:96px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:' + chBg(ch) + ';overflow:hidden;position:relative">' + chArt(ch, 'tile') + '</div>' +
+        '<div style="position:relative;width:100%;padding-top:64.9%;border-radius:12px;overflow:hidden;background:' + chBg(ch) + '">' + chArt(ch, 'tile') + '</div>' +
         '<div class="nun" style="margin-top:11px;font-weight:800;font-size:15px;color:#eaf6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(ch.title) + '</div>' +
         '<div style="margin-top:3px;font-size:12px;color:#6f93b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(ch._cat) + '</div>' +
       '</div>';
