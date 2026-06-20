@@ -38,12 +38,10 @@ img { -webkit-user-drag: none; }
 
 /* ---------- Player video / spinner ---------- */
 #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; z-index: 1; }
-.pl-spinner {
-  position: absolute; top: 50%; left: 50%; width: 74px; height: 74px; margin: -37px 0 0 -37px;
-  border: 7px solid rgba(255,255,255,.16); border-top-color: #31cfff; border-radius: 50%;
-  animation: atk-spin 1s linear infinite; z-index: 3;
-}
-.pl-spinner.hidden { display: none; }
+/* Overlay de sintonización (pantalla de carga del canal) */
+@keyframes atk-fadein   { 0%{opacity:0} 100%{opacity:1} }
+@keyframes atk-flow     { 0%{left:0;opacity:0} 12%{opacity:1} 88%{opacity:1} 100%{left:100%;opacity:0} }
+@keyframes atk-loaddots { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
 
 /* ---------- Vista previa en vivo (spotlight) ---------- */
 /* En Tizen, AVPlay dibuja detrás del navegador; transparentamos html/body

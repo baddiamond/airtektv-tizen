@@ -283,6 +283,7 @@
     $('pl-backdrop').style.background = 'radial-gradient(70% 90% at 50% 32%,' +
       (ch._cat === 'Airtek Goool' ? '#1e7be6' : '#16314f') + ' -10%,#05080f 78%)';
     $('pl-corner').textContent = ch.title || '';
+    if ($('tune-name')) $('tune-name').textContent = ch._num + ' · ' + (ch.title || '');
     spinner(true);
     showBanner(true);
     renderBanner(ch, 'Cargando…');
@@ -328,7 +329,7 @@
     S.bannerVisible = v;
   }
   function toggleBanner() { showBanner(!S.bannerVisible); }
-  function spinner(on) { $('pl-spinner').classList.toggle('hidden', !on); }
+  function spinner(on) { $('pl-tune').classList.toggle('hidden', !on); }
 
   function startPlayback(url, ch) {
     if (!url) { tryBackupOr(ch, 'sin-url'); return; }
