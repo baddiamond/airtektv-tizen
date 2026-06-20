@@ -309,12 +309,17 @@
       '</div>';
   }
   function showBanner(v) {
-    var b = $('pl-banner');
+    var b = $('pl-banner'), top = $('pl-top');
     b.style.display = v ? 'block' : 'none';
+    if (top) top.style.display = v ? 'flex' : 'none';
     clearTimeout(S.bannerTimer);
     if (v) {
       b.style.animation = 'none'; void b.offsetWidth; b.style.animation = 'atk-bannerin .4s cubic-bezier(.2,.7,.2,1) both';
-      S.bannerTimer = setTimeout(function () { b.style.display = 'none'; S.bannerVisible = false; }, 4500);
+      S.bannerTimer = setTimeout(function () {
+        b.style.display = 'none';
+        if (top) top.style.display = 'none';
+        S.bannerVisible = false;
+      }, 4500);
     }
     S.bannerVisible = v;
   }
