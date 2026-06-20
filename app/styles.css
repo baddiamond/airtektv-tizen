@@ -1,183 +1,49 @@
-/* Airtek TV — UI para Samsung Tizen (1920x1080), navegación por control remoto.
-   Marca: wordmark "airtek" blanco + "TV" cian (#33d1f7) sobre negro. */
-:root {
-  --bg:        #05080d;
-  --bg-soft:   #0b1018;
-  --panel:     #121a26;
-  --panel-2:   #18222f;
-  --line:      #1e2a3a;
-  --accent:    #33d1f7;   /* cian Airtek */
-  --accent-d:  #11a8d6;
-  --text:      #f2f7fd;
-  --text-dim:  #8294aa;
-  --focus:     #44dbff;
-  --radius:    16px;
-  --shadow-focus: 0 16px 50px rgba(51, 209, 247, .40);
-}
+/* Airtek TV — Samsung Tizen (TizenBrew). Diseño hi-fi basado en el handoff oficial.
+   Marca: cian #31CFFF. Lienzo base 1920x1080. Navegación 100% por control remoto. */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=Saira+Condensed:ital,wght@1,700;1,800&display=swap');
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
-  margin: 0; padding: 0;
-  width: 1920px; height: 1080px;
-  background:
-    radial-gradient(1200px 700px at 78% -10%, rgba(51,209,247,.10), transparent 60%),
-    var(--bg);
-  color: var(--text);
-  font-family: "Tizen Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  width: 100%; height: 100%;
+  background: #04070d; color: #eaf6ff;
+  font-family: 'Manrope', sans-serif;
+  -webkit-font-smoothing: antialiased;
   overflow: hidden; user-select: none; -webkit-user-select: none;
 }
-.hidden { display: none !important; }
 img { -webkit-user-drag: none; }
+.hidden { display: none !important; }
+.nun { font-family: 'Nunito', sans-serif; }
+.saira { font-family: 'Saira Condensed', sans-serif; font-style: italic; font-weight: 800; }
 
-/* ---------- Splash ---------- */
-.splash {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 34px;
-}
-.splash-glow {
-  position: absolute; width: 900px; height: 900px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(51,209,247,.18), transparent 60%);
-  filter: blur(20px);
-}
-.splash-logo { width: 420px; height: auto; position: relative; z-index: 1; }
-.splash-bar {
-  position: relative; z-index: 1;
-  width: 320px; height: 6px; border-radius: 6px;
-  background: rgba(255,255,255,.10); overflow: hidden;
-}
-.splash-bar span {
-  display: block; height: 100%; width: 40%; border-radius: 6px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  animation: slide 1.3s ease-in-out infinite;
-}
-@keyframes slide { 0% { transform: translateX(-120%);} 100% { transform: translateX(320%);} }
-.splash-status { position: relative; z-index: 1; font-size: 28px; color: var(--text-dim); }
+.view { position: absolute; inset: 0; }
 
-/* ---------- Browse layout ---------- */
-.browse { position: absolute; inset: 0; display: flex; }
+/* ---------- Animaciones (del handoff) ---------- */
+@keyframes atk-bgpan{0%{transform:translate3d(0,0,0) scale(1.05)}50%{transform:translate3d(-2%,1%,0) scale(1.12)}100%{transform:translate3d(0,0,0) scale(1.05)}}
+@keyframes atk-pktL{0%{transform:translateX(-58vw);opacity:0}8%{opacity:1}82%{opacity:1}100%{transform:translateX(0);opacity:0}}
+@keyframes atk-pktR{0%{transform:translateX(58vw);opacity:0}8%{opacity:1}82%{opacity:1}100%{transform:translateX(0);opacity:0}}
+@keyframes atk-line{0%{opacity:0}12%{opacity:.5}100%{opacity:.16}}
+@keyframes atk-flash{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}45%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
+@keyframes atk-ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}30%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(2.6)}}
+@keyframes atk-ignite{0%{opacity:0;transform:scale(.72);filter:blur(16px)}55%{opacity:1;filter:blur(0)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes atk-glowpulse{0%,100%{filter:drop-shadow(0 0 22px rgba(49,207,255,.55)) drop-shadow(0 0 60px rgba(30,123,230,.3))}50%{filter:drop-shadow(0 0 34px rgba(49,207,255,.85)) drop-shadow(0 0 90px rgba(30,123,230,.45))}}
+@keyframes atk-underline{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+@keyframes atk-up{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes atk-fill{0%{width:2%}100%{width:100%}}
+@keyframes atk-spark{0%{opacity:0;transform:translateY(0) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translateY(-90px) scale(1)}}
+@keyframes atk-blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes atk-sheen{0%{transform:translateX(-130%)}100%{transform:translateX(230%)}}
+@keyframes atk-eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@keyframes atk-bannerin{0%{opacity:0;transform:translateY(24px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes atk-spin{to{transform:rotate(360deg)}}
 
-.rail {
-  width: 340px; height: 100%;
-  background: linear-gradient(180deg, var(--bg-soft), #070b11);
-  border-right: 1px solid var(--line);
-  display: flex; flex-direction: column;
-  padding: 44px 0 36px;
+/* ---------- Player video / spinner ---------- */
+#video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; z-index: 1; }
+.pl-spinner {
+  position: absolute; top: 50%; left: 50%; width: 74px; height: 74px; margin: -37px 0 0 -37px;
+  border: 7px solid rgba(255,255,255,.16); border-top-color: #31cfff; border-radius: 50%;
+  animation: atk-spin 1s linear infinite; z-index: 3;
 }
-.rail-logo { width: 184px; height: auto; margin: 0 0 40px 36px; }
-.rail-cats { flex: 1; overflow: hidden; }
-.cat {
-  display: flex; align-items: center; gap: 18px;
-  padding: 17px 36px;
-  font-size: 26px; color: var(--text-dim);
-  border-left: 5px solid transparent;
-  transition: background .12s, color .12s, border-color .12s;
-}
-.cat .cat-ico { font-size: 26px; width: 34px; text-align: center; }
-.cat.active { color: var(--text); }
-.cat.focused {
-  background: linear-gradient(90deg, rgba(51,209,247,.16), transparent);
-  color: var(--text); border-left-color: var(--accent);
-}
-.rail-foot { padding: 24px 36px 0; border-top: 1px solid var(--line); margin: 12px 24px 0; }
-.clock { font-size: 40px; font-weight: 700; letter-spacing: 1px; }
-.clock-date { font-size: 20px; color: var(--text-dim); text-transform: capitalize; margin-top: 2px; }
+.pl-spinner.hidden { display: none; }
 
-/* ---------- Content / grid ---------- */
-.content { flex: 1; padding: 44px 52px 0; overflow: hidden; }
-.content-head { margin-bottom: 26px; }
-.content-head h1 { font-size: 48px; font-weight: 800; margin: 0; }
-.cat-count { font-size: 24px; color: var(--text-dim); }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-auto-rows: 208px;
-  gap: 24px;
-  align-content: start;
-  height: calc(1080px - 44px - 26px - 70px);
-  overflow-y: hidden; scroll-behavior: smooth;
-}
-.card {
-  position: relative;
-  display: flex; flex-direction: column;
-  height: 100%;
-  background: linear-gradient(160deg, var(--panel), var(--panel-2));
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 3px solid transparent;
-  transition: transform .14s ease, border-color .14s, box-shadow .14s;
-}
-.card.focused {
-  border-color: var(--focus);
-  transform: scale(1.07) translateY(-2px);
-  box-shadow: var(--shadow-focus);
-  z-index: 2;
-}
-.card-num {
-  position: absolute; top: 10px; left: 12px;
-  min-width: 34px; height: 30px; padding: 0 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 700; color: #021018;
-  background: var(--accent); border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.4);
-}
-.card-thumb {
-  width: 100%; flex: 1 1 auto; min-height: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle at 50% 40%, #1b2735, #0e151f);
-}
-.card-thumb img { max-width: 78%; max-height: 70%; object-fit: contain; }
-.card-thumb .ph { font-size: 52px; opacity: .5; }
-.card-title {
-  flex: 0 0 auto;
-  padding: 14px 16px; font-size: 23px; font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  border-top: 1px solid rgba(255,255,255,.04);
-}
-
-/* ---------- Player ---------- */
-.player { position: absolute; inset: 0; background: #000; }
-.player video { width: 100%; height: 100%; object-fit: contain; background: #000; }
-.player-scrim {
-  position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(0deg, rgba(0,0,0,.6) 0%, transparent 22%);
-  opacity: 0; transition: opacity .2s;
-}
-.player.osd-on .player-scrim { opacity: 1; }
-.player-osd {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  display: flex; align-items: center; gap: 28px;
-  padding: 44px 56px;
-  transform: translateY(20px); opacity: 0;
-  transition: opacity .2s, transform .2s;
-}
-.player-osd.show { opacity: 1; transform: translateY(0); }
-.osd-num {
-  font-size: 40px; font-weight: 800; color: #021018;
-  background: var(--accent); border-radius: 12px;
-  padding: 10px 18px; min-width: 76px; text-align: center;
-}
-.osd-info { flex: 1; }
-.osd-now { font-size: 46px; font-weight: 800; }
-.osd-meta { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
-.osd-live {
-  font-size: 22px; font-weight: 700; color: #021018;
-  background: #ff4d4d; border-radius: 6px; padding: 3px 12px; letter-spacing: 1px;
-}
-.osd-cat { font-size: 24px; color: var(--text-dim); }
-.osd-hint { font-size: 22px; color: var(--text-dim); }
-
-.player-spinner {
-  position: absolute; top: 50%; left: 50%;
-  width: 84px; height: 84px; margin: -42px 0 0 -42px;
-  border: 8px solid rgba(255,255,255,.16);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-.player-spinner.hidden { display: none; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.notice {
-  grid-column: 1 / -1; font-size: 28px; color: var(--text-dim); padding: 40px 0;
-}
+/* scrollbars ocultos */
+::-webkit-scrollbar { width: 0; height: 0; }
