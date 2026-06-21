@@ -18,6 +18,19 @@ window.AIRTEK_CONFIG = {
   // Si en la TV se siente lento/raro, poner en false para volver al logo estático.
   spotlightPreview: true,
   previewDelayMs: 1200,   // espera tras quedarse quieto en un canal antes de previsualizar
+
+  // Canales locales propios (no vienen del API). Se anexan al final del catálogo
+  // y se agrupan en una categoría aparte que siempre queda de última en el menú.
+  // Útil para cámaras/CCTV o streams de la red local.
+  localChannels: [
+    {
+      title: 'CASA CCTV',
+      url: 'http://192.168.88.69:8888/mosaic/index.m3u8',
+      category: 'Local',   // nombre de la sección donde aparece
+      thumbnail: '',       // opcional: URL de logo; si se omite, muestra el nombre
+      backup_url: ''       // opcional: stream de respaldo
+    }
+  ],
 };
 
 // --- Perfil WEB con DRM (POSPUESTO — ver README "Ruta futura"). ---

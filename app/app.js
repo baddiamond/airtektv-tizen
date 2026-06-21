@@ -31,14 +31,15 @@
     note: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
     cap: '<path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M7 10v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/>',
     cross: '<path d="M10 3h4v6h6v4h-6v8h-4v-8H4V9h6z"/>',
-    heart: '<path d="M12 20s-7-4.6-9.2-8.4C1.2 8.5 3 5 6.2 5 8 5 9.4 6 12 8.6 14.6 6 16 5 17.8 5 21 5 22.8 8.5 21.2 11.6 19 15.4 12 20 12 20z"/>'
+    heart: '<path d="M12 20s-7-4.6-9.2-8.4C1.2 8.5 3 5 6.2 5 8 5 9.4 6 12 8.6 14.6 6 16 5 17.8 5 21 5 22.8 8.5 21.2 11.6 19 15.4 12 20 12 20z"/>',
+    home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>'
   };
   var CAT_ORDER = ['Todos', 'Entretenimiento', 'Nacionales', 'Deportes', 'Infantil', 'Airtek Goool', 'Música', 'Educativo', 'Religión', 'Telenovelas', 'Estilo de vida'];
   var CAT_ICON = {
     'todos': 'grid', 'entretenimiento': 'film', 'nacionales': 'sat', 'deportes': 'ball',
     'infantil': 'star', 'airtek goool': 'goal', 'música': 'note', 'musica': 'note',
     'educativo': 'cap', 'religión': 'cross', 'religion': 'cross', 'telenovelas': 'heart',
-    'estilo de vida': 'star'
+    'estilo de vida': 'star', 'local': 'home'
   };
   function svg(inner, stroke, size) {
     size = size || 22;
@@ -77,8 +78,24 @@
     return fetchWithTimeout(apiUrl, CFG.fetchTimeoutMs)
       .catch(function () { return fetchWithTimeout(CFG.mockUrl, CFG.fetchTimeoutMs); })
       .then(function (json) {
-        var data = (json && json.data) ? json.data : [];
-        S.channels = data.slice().sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+        var data = (json && json.data) ? json.data.slice() : [];
+        // Anexar canales locales definidos en config (CCTV, streams de la red, etc.).
+        // order alto → quedan al final; categoría propia → sección aparte en el menú.
+        if (CFG.localChannels && CFG.localChannels.length) {
+          CFG.localChannels.forEach(function (lc, i) {
+            data.push({
+              hasDrm: false,
+              thumbnail: lc.thumbnail || '',
+              backup_url: lc.backup_url || '',
+              id: 'local-' + i,
+              categories: { tags: lc.category || 'Local' },
+              title: lc.title || 'Canal local',
+              url: lc.url,
+              order: 100000 + i
+            });
+          });
+        }
+        S.channels = data.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
         S.channels.forEach(function (ch, i) {
           ch._num = i + 1;
           ch._cat = (ch.categories && ch.categories.tags) ? ch.categories.tags : 'Otros';
@@ -99,6 +116,10 @@
     });
     S.categories = [{ name: 'Todos', items: S.channels }];
     found.forEach(function (n) { S.categories.push(map[n]); });
+    // La sección "Local" (canales propios) siempre va de última en el menú.
+    var li = -1;
+    S.categories.forEach(function (c, i) { if (c.name.toLowerCase() === 'local') li = i; });
+    if (li > 0) S.categories.push(S.categories.splice(li, 1)[0]);
     // Foco inicial: Deportes si existe, si no Todos
     var dep = -1;
     S.categories.forEach(function (c, i) { if (c.name.toLowerCase() === 'deportes') dep = i; });
